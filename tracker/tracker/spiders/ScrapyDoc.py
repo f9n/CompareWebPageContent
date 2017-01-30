@@ -41,10 +41,9 @@ class ScrapyDocSpider(CrawlSpider):
             """
             - You must sent string type value like: <a href="asd" rel="asdas">asdas</a>
             - finding all attribute one tag and return json object
-            - It is buggie.
             """
-            print(string)
-            print(type(string))
+            #print(string)
+            #print(type(string))
             jsonObject = {}
             okey = string.split('>')[0][1:] # String tag and attribute
             if okey.find(" ") != -1: # <head> <p class="asd"></head>
@@ -73,17 +72,12 @@ class ScrapyDocSpider(CrawlSpider):
                         else:
                             jsonObject.update({something[0]:something[1]})
                         break
-                """
-                for attr in TagAndStringAttr[1:]:
-                    little = attr.split("=")
-                    if len(little) < 2: ### Beacuse,sometime there was like defer asyns tag
-                        jsonObject.update({little[0]:""})
-                    else:
-                        jsonObject.update({little[0]:little[1]})
-                """
             return jsonObject
         def recursive_xpath_selector(selector, parent_clas):
-            """This function select all selector"""
+            """
+            This function select all selector => parent to child selector
+            """
+
             ### recursive all selector
             if selector:
                 # print(selector)
