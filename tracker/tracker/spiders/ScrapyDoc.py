@@ -57,17 +57,19 @@ class ScrapyDocSpider(CrawlSpider):
                     if okey.find("\" ") != -1:
                         something = okey[:okey.index("\" ")+1]
                         okey = okey[okey.index("\" ")+2:]
-                        something = something.split("=")
-                        if len(something) < 2:
+                        #something = something.split("=")
+                        if len(something.split("=")) < 2:
+                            something = something.split("=")
                             jsonObject.update({something[0]:""})
                         else:
-                            jsonObject.update({something[0]:something[1]})
+                            jsonObject.update({something[:something.index("=")]:something[something.index("=")+1:]})
                     else:
-                        something = okey.split("=")
-                        if len(something) < 2:
+                        something = okey
+                        if len(something.split("=")) < 2:
+                            something = something.split("=")
                             jsonObject.update({something[0]:""})
                         else:
-                            jsonObject.update({something[0]:something[1]})
+                            jsonObject.update({something[:something.index("=")]:something[something.index("=")+1:]})
                         break
             return jsonObject
         def recursive_xpath_selector(selector, pwd): # pwd default = "/html"
