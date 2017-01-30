@@ -73,11 +73,10 @@ class ScrapyDocSpider(CrawlSpider):
                             jsonObject.update({something[0]:something[1]})
                         break
             return jsonObject
-        def recursive_xpath_selector(selector, parent_clas):
+        def recursive_xpath_selector(selector, pwd): # pwd default = "/html"
             """
             This function select all selector => parent to child selector
             """
-
             ### recursive all selector
             if selector:
                 # print(selector)
@@ -86,28 +85,22 @@ class ScrapyDocSpider(CrawlSpider):
                     jsonObject = findAllAttr(i.extract())
                     #jsonObject['text'] = i.xpath('text()').extract_first()
                     #jsonObject.update({'status':"active"})
+                    sub_pwd = pwd + "/" + jsonObject['tag']
+                    if 'class' in jsonObject:
+                        sub_pwd = sub_pwd + "["+ "{}".format(jsonObject['class']) + "]"
+                    jsonObject['hierarchy'] = sub_pwd
                     addJsonObjectToItem(jsonObject)
                     print(jsonObject)
-                    sub_clas = i.css('::attr(class)').extract_first()
-                    #print(type(parent_clas))
-                    #print(parent_clas)
-                    #print(type(sub_clas))
-                    #print(sub_clas)
-                    #print('$$$$$ ')
-                    if sub_clas:
-                        #print(type(sub_clas.encode("utf8")))
-                        sub_clas = parent_clas + sub_clas + " "
-                    else:
-                        sub_clas = parent_clas
-                    #print(sub_clas)
-                    #print('~~~~~~')
-                    #print(parent_clas)
-                    #print(tags)
-                    recursive_xpath_selector(i, sub_clas)
+                    recursive_xpath_selector(i, sub_pwd)
             else:
                 print('Finished!!!')
 
-        recursive_xpath_selector(response, "")
+        # Maybe <!doctype html> changing
+
+        jsonObject = findAllAttr(response.css('html').extract_first())
+        jsonObject['hierarchy'] = "/html"
+        recursive_xpath_selector(response, "/html")
+
         """
         html = HtmlTagItem()
         html['head'] = ' ' # HeadTagItem()
