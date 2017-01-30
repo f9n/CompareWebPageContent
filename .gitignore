@@ -1,3 +1,8 @@
+# My stuff
+myvenv
+./tracker/data
+./tracker/out.js
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
