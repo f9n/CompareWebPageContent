@@ -34,6 +34,9 @@ Like this:
       { 'tag':'li'  , 'class':'qwe', 'hierarchy':'/html/body/ul[asd]/li'}
 ```
 
+<h4>How does it look on MongoDb</h4>
+![MongoDb](https://github.com/pleycpl/CompareWebPageContent/blob/master/picture/RoboMongoDisplay.png)
+
 <h4>Xpath-Nice-Document</h4>
 <ul>
   <li>http://www.pearsonitcertification.com/articles/article.aspx?p=101369&seqNum=3</li>
