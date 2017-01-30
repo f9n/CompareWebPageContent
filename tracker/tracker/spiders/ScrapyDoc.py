@@ -5,6 +5,7 @@ import os
 import time
 import hashlib
 
+
 # scrapy crawl scrapydoc -o out.json
 class ScrapyDocSpider(CrawlSpider):
     name = "scrapydoc"
@@ -40,20 +41,46 @@ class ScrapyDocSpider(CrawlSpider):
             """
             - You must sent string type value like: <a href="asd" rel="asdas">asdas</a>
             - finding all attribute one tag and return json object
-            - Bug: ' "
+            - It is buggie.
             """
             print(string)
             print(type(string))
             jsonObject = {}
-            TagAndStringAttr = string.split('>')[0][1:].split()
-            jsonObject['tag'] = TagAndStringAttr[0] ### Tag name
-            if TagAndStringAttr[1:]: ### if is true, there was less a attribute.
+            okey = string.split('>')[0][1:] # String tag and attribute
+            if okey.find(" ") != -1: # <head> <p class="asd"></head>
+                okey[:okey.index(" ")]
+                tagName = okey[:okey.index(" ")] # Index First Space, and find tag
+                okey = okey[okey.index(" "):] # one space and All attribute key and value or nothing
+                jsonObject['tag'] = tagName ### Tag name
+            else:
+                jsonObject['tag'] = okey
+                okey = ""
+            if okey != "" and okey != " ": ### if is true, there was less a attribute.
+                okey = okey[1:] # erasing space
+                while okey:
+                    if okey.find("\" ") != -1:
+                        something = okey[:okey.index("\" ")+1]
+                        okey = okey[okey.index("\" ")+2:]
+                        something = something.split("=")
+                        if len(something) < 2:
+                            jsonObject.update({something[0]:""})
+                        else:
+                            jsonObject.update({something[0]:something[1]})
+                    else:
+                        something = okey.split("=")
+                        if len(something) < 2:
+                            jsonObject.update({something[0]:""})
+                        else:
+                            jsonObject.update({something[0]:something[1]})
+                        break
+                """
                 for attr in TagAndStringAttr[1:]:
                     little = attr.split("=")
                     if len(little) < 2: ### Beacuse,sometime there was like defer asyns tag
                         jsonObject.update({little[0]:""})
                     else:
                         jsonObject.update({little[0]:little[1]})
+                """
             return jsonObject
         def recursive_xpath_selector(selector, parent_clas):
             """This function select all selector"""
@@ -63,10 +90,10 @@ class ScrapyDocSpider(CrawlSpider):
                 for i in selector.xpath('child::*'):
                     #print('####  ', i)
                     jsonObject = findAllAttr(i.extract())
-                    jsonObject['text'] = i.xpath('text()').extract_first()
-                    jsonObject['status'] = "active"
+                    #jsonObject['text'] = i.xpath('text()').extract_first()
+                    #jsonObject.update({'status':"active"})
                     addJsonObjectToItem(jsonObject)
-                    #print(jsonObject)
+                    print(jsonObject)
                     sub_clas = i.css('::attr(class)').extract_first()
                     #print(type(parent_clas))
                     #print(parent_clas)
