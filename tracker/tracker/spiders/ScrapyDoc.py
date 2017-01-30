@@ -5,7 +5,6 @@ import os
 import time
 import hashlib
 
-
 # scrapy crawl scrapydoc -o out.json
 class ScrapyDocSpider(CrawlSpider):
     name = "scrapydoc"
@@ -42,8 +41,6 @@ class ScrapyDocSpider(CrawlSpider):
             - You must sent string type value like: <a href="asd" rel="asdas">asdas</a>
             - finding all attribute one tag and return json object
             """
-            #print(string)
-            #print(type(string))
             jsonObject = {}
             okey = string.split('>')[0][1:] # String tag and attribute
             if okey.find(" ") != -1: # <head> <p class="asd"></head>
@@ -79,16 +76,14 @@ class ScrapyDocSpider(CrawlSpider):
             """
             ### recursive all selector
             if selector:
-                # print(selector)
                 for i in selector.xpath('child::*'):
-                    #print('####  ', i)
                     jsonObject = findAllAttr(i.extract())
-                    #jsonObject['text'] = i.xpath('text()').extract_first()
-                    #jsonObject.update({'status':"active"})
+                    jsonObject['text'] = i.xpath('text()').extract_first()
                     sub_pwd = pwd + "/" + jsonObject['tag']
                     if 'class' in jsonObject:
                         sub_pwd = sub_pwd + "["+ "{}".format(jsonObject['class']) + "]"
                     jsonObject['hierarchy'] = sub_pwd
+                    jsonObject['status'] = 'active'
                     addJsonObjectToItem(jsonObject)
                     print(jsonObject)
                     recursive_xpath_selector(i, sub_pwd)
@@ -99,14 +94,7 @@ class ScrapyDocSpider(CrawlSpider):
 
         jsonObject = findAllAttr(response.css('html').extract_first())
         jsonObject['hierarchy'] = "/html"
+        addJsonObjectToItem(jsonObject)
         recursive_xpath_selector(response, "/html")
 
-        """
-        html = HtmlTagItem()
-        html['head'] = ' ' # HeadTagItem()
-        html['headHash'] = hashlib.md5(response.css('head').extract_first().encode('utf8')).hexdigest()
-        html['body']     = ' ' # BodyTagItem()
-        html['bodyHash'] = hashlib.md5(response.css('body').extract_first().encode('utf8')).hexdigest()
-        page['html'] = html
-        """
         yield page
