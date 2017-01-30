@@ -22,16 +22,16 @@ Like this:
       </html>
       # We are added different attr all tag, and just keep in mongodb example: # Like Unix System
       { 'tag':'html'} # Normally
-      { 'tag':'html', 'hierarchy':'/'} # We are used this.
-      { 'tag':'head', 'hierarchy':'/head'}
-      { 'tag':'body', 'hierarchy':'/body'}
-      { 'tag':'ul', 'class':'asd', 'hierarchy':'/body/ul[asd]'}
-      { 'tag':'li', 'class':'qwe', 'hierarchy':'/body/ul[asd]/li[qwe]'}
-      { 'tag':'p', 'hierarchy':'/body/ul[asd]/li[qwe]/p'}
-      { 'tag':'h2', 'hierarchy': '/body/ul[asd]/li[qwe]/p/h2'}
-      { 'tag':'a', 'href':'/show', 'hierarchy':'/body/ul[asd]/li[qwe]/p/h2/a'}
-      { 'tag':'h2', 'hierarchy': '/body/ul[asd]/li[qwe]/p/h2'}
-      { 'tag':'li', 'class':'qwe', 'hierarchy':'/body/ul[asd]/li'}
+      { 'tag':'html', 'hierarchy':'/html'} # We are used this.
+      { 'tag':'head', 'hierarchy':'/html/head'}
+      { 'tag':'body', 'hierarchy':'/html/body'}
+      { 'tag':'ul'  , 'class':'asd', 'hierarchy':'/html/body/ul[asd]'}
+      { 'tag':'li'  , 'class':'qwe', 'hierarchy':'/html/body/ul[asd]/li[qwe]'}
+      { 'tag':'p'   , 'hierarchy':'/html/body/ul[asd]/li[qwe]/p'}
+      { 'tag':'h2'  , 'hierarchy':'/html/body/ul[asd]/li[qwe]/p/h2'}
+      { 'tag':'a'   , 'href':'/show', 'hierarchy':'/html/body/ul[asd]/li[qwe]/p/h2/a'}
+      { 'tag':'h2'  , 'hierarchy':'/html/body/ul[asd]/li[qwe]/p/h2'}
+      { 'tag':'li'  , 'class':'qwe', 'hierarchy':'/html/body/ul[asd]/li'}
 ```
 
 <h4>Xpath-Nice-Document</h4>
