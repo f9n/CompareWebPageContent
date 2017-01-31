@@ -1,0 +1,102 @@
+from scrapy.spiders import CrawlSpider, Rule
+from scrapy.linkextractors import LinkExtractor
+from tracker.items import TrackerItem, PageItem, HtmlTagItem
+import os
+import time
+import hashlib
+
+# scrapy crawl scrapydoctags -o out.json
+class ScrapyDocTagsSpider(CrawlSpider):
+    name = "scrapydoctags"
+    allowed_domains = ['scrapy.org', 'www.scrapy.org']
+    start_urls = ['https://doc.scrapy.org/en/latest/']
+    rules = (
+        Rule(LinkExtractor(allow=(r'.*')), callback='parse_blog'),
+    )
+
+    def parse_blog(self, response):
+        ### Downloading web page source
+        directoryName = "./data/doc.scrapy.com/" + time.strftime("%Y-%d-%a-%H:%M") + "/"
+        if not os.path.exists(directoryName):
+            os.makedirs(directoryName)
+        filename = directoryName + response.url.replace('/', '\\') + '.html' # Replace / to \ because your Os(Linux, Win)
+        with open(filename, 'wb') as f:
+            f.write(response.body)
+
+        self.logger.info("Start url: %s", response.url)
+
+        tags = []
+
+        def addJsonObjectToItem(jsonObj):
+            tags.append(jsonObj)
+
+        def findAllAttr(string):
+            """
+            - You must sent string type value like: <a href="asd" rel="asdas">asdas</a>
+            - finding all attribute one tag and return json object
+            """
+            jsonObject = {}
+            okey = string.split('>')[0][1:] # String tag and attribute
+            if okey.find(" ") != -1: # <head> <p class="asd"></head>
+                okey[:okey.index(" ")]
+                tagName = okey[:okey.index(" ")] # Index First Space, and find tag
+                okey = okey[okey.index(" "):] # one space and All attribute key and value or nothing
+                jsonObject['tag'] = tagName ### Tag name
+            else:
+                jsonObject['tag'] = okey
+                okey = ""
+            if okey != "" and okey != " ": ### if is true, there was less a attribute.
+                okey = okey[1:] # erasing space
+                while okey:
+                    if okey.find("\" ") != -1:
+                        something = okey[:okey.index("\" ")+1]
+                        okey = okey[okey.index("\" ")+2:]
+                        #something = something.split("=")
+                        if len(something.split("=")) < 2:
+                            something = something.split("=")
+                            jsonObject.update({something[0]:""})
+                        else:
+                            jsonObject.update({something[:something.index("=")]:something[something.index("=")+1:]})
+                    else:
+                        something = okey
+                        if len(something.split("=")) < 2:
+                            something = something.split("=")
+                            jsonObject.update({something[0]:""})
+                        else:
+                            jsonObject.update({something[:something.index("=")]:something[something.index("=")+1:]})
+                        break
+            return jsonObject
+        def recursive_xpath_selector(selector, pwd, tags): # pwd default = "/html"
+            """
+            This function select all selector => parent to child selector
+            """
+            ### recursive all selector
+            if selector:
+                for i in selector.xpath('child::*'):
+                    jsonObject = findAllAttr(i.extract())
+                    jsonObject['text'] = i.xpath('text()').extract_first()
+                    sub_pwd = pwd + "/" + jsonObject['tag']
+                    if 'class' in jsonObject:
+                        sub_pwd = sub_pwd + '['+ '{}'.format(jsonObject['class']) + ']'
+                    jsonObject['hierarchy'] = sub_pwd
+                    jsonObject['status'] = 'active'
+                    #jsonObject.update(globallyJson)
+                    #addJsonObjectToItem(jsonObject)
+                    tags.append(jsonObject)
+                    print(jsonObject)
+                    recursive_xpath_selector(i, sub_pwd, tags)
+            else:
+                print('Finished!!!')
+
+        # Maybe <!doctype html> changing
+
+        #globallyJson = {'pageUrl': response.url, 'pageCode':response.body, 'pageHash':hashlib.md5(response.body).hexdigest()}
+        jsonObject = findAllAttr(response.css('html').extract_first())
+        jsonObject['hierarchy'] = "/html"
+        if 'class' in jsonObject:
+            jsonObject['hierarchy'] += "[" + '{}'.format(jsonObject['class']) + "]"
+        #jsonObject.update(globallyJson)
+        #tags.append(jsonObject)
+        recursive_xpath_selector(response, jsonObject['hierarchy'], tags)
+
+        yield tags

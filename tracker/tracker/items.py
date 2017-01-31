@@ -28,19 +28,5 @@ class PageItem(scrapy.Item):
     bodyHash    = scrapy.Field() #
     tags        = scrapy.Field() #
 
-class HtmlTagItem(scrapy.Item):
-    head        = scrapy.Field() # HeadTagItem()
-    headHash    = scrapy.Field() # Head tag source code hash
-    body        = scrapy.Field() # BodyTagItem()
-    bodyHash    = scrapy.Field() # Body tag source code hash
-
-class HeadTagItem(scrapy.Item):
-    headCode    = scrapy.Field() # Head tag source code
-    headParsing = scrapy.Field() # some tag
-
-class BodyTagItem(scrapy.Item):
-    bodyCode    = scrapy.Field() # Body tag source code
-    bodyParsing = scrapy.Field() # some tag
-
 class TagItem(scrapy.Item):
     pass
