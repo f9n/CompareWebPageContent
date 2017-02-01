@@ -96,7 +96,9 @@ class ScrapyDocSpider(CrawlSpider):
 
         jsonObject = findAllAttr(response.css('html').extract_first())
         jsonObject['hierarchy'] = "/html"
+        if 'class' in jsonObject:
+            jsonObject['hierarchy'] += "[" + "{}".format(jsonObject['class']) + "]"
         addJsonObjectToItem(jsonObject)
-        recursive_xpath_selector(response, "/html")
+        recursive_xpath_selector(response, jsonObject['hierarchy'])
 
         yield page
